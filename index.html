@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>专属生日寄语</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+
+    <style>
+
+        /* ================= 1. 全局强制锁定设置 ================= */
+
+        * { box-sizing: border-box; }
+
+        body, html {
+
+            margin: 0; padding: 0;
+
+            width: 100vw; height: 100vh;
+
+            overflow: hidden; 
+
+            background: linear-gradient(to bottom, #E0EDFF 0%, #FFF3F8 100%);
+
+            user-select: none;
+
+            -webkit-tap-highlight-color: transparent;
+
+        }
+
+
+
+        /* 统一手写字体引擎 */
+
+        .pen-font {
+
+            font-family: 'Caveat', 'ZCOOL KuaiLe', cursive;
+
+            font-weight: normal; 
+
+            -webkit-text-stroke: 0px transparent;
+
+            text-shadow: none; 
+
+            letter-spacing: 2px;
+
+        }
+
+
+
+        .c-main { color: #3A4E99; }
+
+        .c-sub { color: #8A8FB8; }
+
+        .c-pink { color: #E898A8; }
+
+        .c-blue { color: #82B6E8; }
+
+        .c-purple { color: #7A88C0; }
+
+
+
+        /* 滑页逻辑 */
+
+        .page {
+
+            position: absolute; top: 0; left: 0;
+
+            width: 100%; height: 100%;
+
+            display: flex; flex-direction: column;
+
+            justify-content: center; align-items: center; 
+
+            opacity: 0; visibility: hidden;
+
+            transform: translateX(30px);
+
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+            z-index: 10; cursor: pointer;
+
+        }
+
+        .page.active { opacity: 1; visibility: visible; transform: translateX(0); }
+
+        .page.exit-left { opacity: 0; visibility: hidden; transform: translateX(-30px); }
+
+
+
+        .fade-up { opacity: 0; transform: translateY(15px); }
+
+        .page.active .fade-up { animation: fadeUpAnim 1.2s ease forwards; }
+
+        @keyframes fadeUpAnim { to { opacity: 1; transform: translateY(0); } }
+
+        .d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.3s; }
+
+        .d3 { animation-delay: 0.5s; } .d4 { animation-delay: 0.7s; } .d5 { animation-delay: 0.9s; }
+
+
+
+        .decor { position: absolute; pointer-events: none; opacity: 0.3; }
+
+        .interactive { cursor: default; }
+
+
+
+        /* ================= 2. 第1页：开篇信封页 ================= */
+
+        .p1-container { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+        .envelope-icon {
+
+            width: 70px; height: 45px; border: 1.5px solid #8A8FB8;
+
+            border-radius: 3px; position: relative; margin-bottom: 20px;
+
+        }
+
+        .envelope-icon::before {
+
+            content: ''; position: absolute; top: 0; left: 0; width: 48px; height: 1.5px; background: #8A8FB8;
+
+            transform-origin: top left; transform: rotate(25deg);
+
+        }
+
+        .envelope-icon::after {
+
+            content: ''; position: absolute; top: 0; right: 0; width: 48px; height: 1.5px; background: #8A8FB8;
+
+            transform-origin: top right; transform: rotate(-25deg);
+
+        }
+
+        .p1-title { font-size: 48px; line-height: 1.6; display: flex; flex-direction: column; }
+
+        .p1-title span:first-child { transform: rotate(-2deg); }
+
+        .p1-title span:last-child { transform: rotate(1deg) translateX(5px); }
+
+
+
+        /* ================= 3. 第2页：生日蛋糕互动页（深度动画优化） ================= */
+
+        .cake-wrapper { position: relative; width: 160px; height: 120px; margin: 30px 0; }
+
+        .cake-body {
+
+            position: absolute; bottom: 0; left: 20px; width: 120px; height: 55px;
+
+            border: 1.5px solid #E898A8; border-radius: 6px;
+
+        }
+
+        .cake-frosting {
+
+            position: absolute; bottom: 45px; left: 10px; width: 140px; height: 20px;
+
+            border: 1.5px solid #FFF; border-radius: 10px; background: rgba(255, 255, 255, 0.4);
+
+        }
+
+        .candle-hitbox {
+
+            position: absolute; bottom: 60px; width: 40px; height: 60px;
+
+            display: flex; justify-content: center; align-items: flex-end; cursor: pointer; z-index: 10;
+
+        }
+
+        .ch-1 { left: 20px; } .ch-2 { left: 60px; bottom: 65px; } .ch-3 { left: 100px; }
+
+        
+
+        /* 点击缩放反馈 */
+
+        .candle-stick {
+
+            width: 6px; height: 35px; border: 1px solid #8A8FB8; border-radius: 2px; position: relative;
+
+            transition: transform 0.15s ease;
+
+        }
+
+        .candle-hitbox:active .candle-stick { transform: scale(0.95) translateY(2px); }
+
+
+
+        /* 火苗点亮与熄灭引擎 */
+
+        .flame-wrapper {
+
+            position: absolute; top: -18px; left: -3px; width: 12px; height: 18px;
+
+            transform-origin: bottom center; transform: scaleY(0); opacity: 0;
+
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+
+        }
+
+        .flame-wrapper.lit { transform: scaleY(1); opacity: 1; }
+
+        
+
+        /* 拟真双层火苗+烛芯光晕 */
+
+        .flame-wrapper.lit .flame {
+
+            width: 100%; height: 100%;
+
+            background: radial-gradient(ellipse at bottom, #FFFDE4 20%, #FFB74D 60%, #FF9800 100%);
+
+            border-radius: 50% 50% 20% 20%;
+
+            box-shadow: 0 0 10px 2px rgba(255, 183, 77, 0.4);
+
+            animation: flame-flicker 2s infinite alternate ease-in-out, flame-breathe 1.5s infinite alternate ease-in-out;
+
+        }
+
+        @keyframes flame-flicker {
+
+            0% { transform: rotate(-5deg) skewX(2deg); }
+
+            25% { transform: rotate(3deg) skewX(-2deg); }
+
+            50% { transform: rotate(-2deg) skewX(1deg); }
+
+            75% { transform: rotate(4deg) skewX(-3deg); }
+
+            100% { transform: rotate(-5deg) skewX(2deg); }
+
+        }
+
+        @keyframes flame-breathe {
+
+            0% { opacity: 0.85; box-shadow: 0 0 8px 1px rgba(255, 183, 77, 0.3); }
+
+            100% { opacity: 1; box-shadow: 0 0 15px 3px rgba(255, 183, 77, 0.6); }
+
+        }
+
+
+
+        /* 熄灭白烟动画 */
+
+        .smoke {
+
+            position: absolute; top: -15px; left: 0px; width: 6px; height: 6px;
+
+            background: rgba(255, 255, 255, 0.7); border-radius: 50%;
+
+            opacity: 0; pointer-events: none;
+
+        }
+
+        .smoke.puff { animation: smoke-puff 0.4s ease-out forwards; }
+
+        @keyframes smoke-puff {
+
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+
+            100% { transform: translateY(-25px) scale(3); opacity: 0; }
+
+        }
+
+
+
+        .p2-surprise { opacity: 0; transition: opacity 1s; font-size: 28px; line-height: 1.6; text-align: center; position: absolute; bottom: 20%; pointer-events: none;}
+
+        
+
+        /* 全局统一音乐控制器 */
+
+        .audio-controls {
+
+            position: fixed; bottom: 6%; right: 5%; display: flex; align-items: center; gap: 8px; z-index: 100;
+
+        }
+
+        .audio-btn { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.3s; display: flex; align-items: center;}
+
+        .music-note { font-size: 14px; margin-left: 2px; opacity: 0; transition: opacity 0.3s; }
+
+        .music-note.show { opacity: 1; }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 50px; }
+
+        input[type=range]::-webkit-slider-runnable-track { height: 1.5px; background: #8A8FB8; }
+
+        input[type=range]::-webkit-slider-thumb {
+
+            -webkit-appearance: none; height: 10px; width: 10px; border-radius: 50%;
+
+            background: #3A4E99; margin-top: -4px; cursor: pointer;
+
+        }
+
+        /* 音乐就绪提示弹窗 */
+
+        .audio-toast {
+
+            position: absolute; bottom: 35px; right: 0; white-space: nowrap;
+
+            font-size: 14px; background: rgba(255,255,255,0.8);
+
+            padding: 4px 8px; border-radius: 6px; border: 1px solid #8A8FB8;
+
+            opacity: 0; transition: opacity 0.5s; pointer-events: none;
+
+        }
+
+        .audio-toast.show { opacity: 1; }
+
+
+
+        /* ================= 4. 第3页：互动与点亮视觉 ================= */
+
+        .p3-container { width: 90%; max-width: 550px; display: flex; flex-direction: column; gap: 25px; }
+
+        .interactive-line { display: flex; align-items: flex-start; cursor: pointer; transition: all 0.4s ease; }
+
+        
+
+        .interactive-line.lit { 
+
+            filter: brightness(0.7); 
+
+            text-shadow: 0 0 10px currentColor; 
+
+        }
+
+        .interactive-line.lit .main-size {
+
+            text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px;
+
+        }
+
+        .interactive-line.lit .wavy-underline { text-decoration: underline wavy; }
+
+        .star-mark { 
+
+            color: inherit; margin-left: 8px; opacity: 0; transition: opacity 0.5s; 
+
+            font-size: 28px; text-shadow: 0 0 15px currentColor;
+
+        }
+
+        .interactive-line.lit .star-mark { opacity: 1; }
+
+
+
+        .main-size { font-size: min(36px, 7vw); line-height: 1.8; }
+
+        .sub-size { font-size: 18px; margin-left: 10px; opacity: 0.85; }
+
+        .mini-size { font-size: 16px; opacity: 0.8; }
+
+        .wavy-underline { text-decoration: underline; text-decoration-style: wavy; text-decoration-thickness: 1px; text-underline-offset: 8px; }
+
+        .hand-dash { width: 40px; height: 1.5px; background: currentColor; margin-top: 5px; margin-left: 20px; transform: rotate(-2deg); opacity: 0.8; }
+
+
+
+        /* ================= 5. 弹窗系统 ================= */
+
+        .modal-overlay {
+
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+
+            background: rgba(245, 248, 255, 0.4); 
+
+            display: flex; justify-content: center; align-items: center;
+
+            opacity: 0; visibility: hidden; transition: all 0.5s ease; z-index: 100;
+
+        }
+
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+
+        
+
+        .modal-box {
+
+            width: 85%; max-width: 400px;
+
+            background: linear-gradient(to bottom, rgba(224, 237, 255, 0.95), rgba(255, 243, 248, 0.95));
+
+            border: 1.5px solid #8A8FB8; border-radius: 6px;
+
+            padding: 30px; text-align: center; position: relative;
+
+            transform: translateY(20px); transition: transform 0.5s ease;
+
+        }
+
+        .modal-overlay.show .modal-box { transform: translateY(0); }
+
+        
+
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 28px; color: #8A8FB8; cursor: pointer; }
+
+        .modal-content { font-size: 24px; color: #3A4E99; line-height: 1.6; letter-spacing: 2px; }
+
+
+
+        .toast-box {
+
+            background: transparent; border: none; box-shadow: none;
+
+            font-size: 36px; color: #E898A8; text-shadow: 0 0 15px rgba(232,152,168,0.6);
+
+            letter-spacing: 4px; padding: 0;
+
+        }
+
+
+
+        .easter-box { max-width: 500px; padding: 40px 30px; border-color: #E898A8;}
+
+        .easter-title { font-size: 32px; color: #E898A8; margin-bottom: 20px; }
+
+        .easter-btn {
+
+            margin-top: 25px; padding: 6px 20px; font-size: 20px;
+
+            color: #3A4E99; border: 1px solid #3A4E99; border-radius: 20px;
+
+            background: transparent; cursor: pointer; transition: all 0.3s;
+
+        }
+
+        .easter-btn:hover { background: rgba(58, 78, 153, 0.1); }
+
+
+
+        #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 1.5s ease;}
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <audio id="bgm-audio" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_249216d006.mp3?filename=happy-birthday-to-you-piano-version-13976.mp3" loop preload="auto"></audio>
+
+
+
+    <div class="audio-controls interactive pen-font c-sub" onclick="event.stopPropagation()">
+
+        <span class="audio-btn" onclick="toggleBGM()">
+
+            <span id="audio-speaker">🔈</span><span class="music-note" id="audio-note">♪</span>
+
+        </span>
+
+        <input type="range" id="audio-volume" min="0" max="1" step="0.1" value="0.5" onchange="changeVolume()">
+
+        <div class="audio-toast pen-font c-main" id="audio-toast">生日歌已就绪，点击喇叭播放</div>
+
+    </div>
+
+
+
+    <div class="decor pen-font c-sub" style="top: 5%; left: 5%; font-size: 24px;">*</div>
+
+    <div class="decor pen-font c-pink" style="bottom: 10%; right: 5%; font-size: 20px;">✦</div>
+
+    <div class="decor pen-font c-blue" style="top: 15%; right: 8%; font-size: 18px;">✧</div>
+
+
+
+    <div class="page active" id="page1" onclick="turnPage(2)">
+
+        <div class="p1-container pen-font">
+
+            <div class="fade-up d1 envelope-icon"></div>
+
+            <div class="fade-up d1 c-sub" style="font-size: 18px; margin-bottom: 50px;">To [对方名字]</div>
+
+            
+
+            <div class="p1-title c-main">
+
+                <span class="fade-up d2">生辰喜乐</span>
+
+                <span class="fade-up d3">顺颂时宜</span>
+
+            </div>
+
+            
+
+            <div class="fade-up d4 c-pink" style="font-size: 20px; margin-top: 60px;">* 点击翻阅，解锁生日惊喜 *</div>
+
+        </div>
+
+        <div class="fade-up d5 c-purple pen-font" style="font-size: 14px; position: absolute; bottom: 8%;">202X年X月X日</div>
+
+    </div>
+
+
+
+    <div class="page" id="page2" onclick="turnPage(3)">
+
+        <div class="decor pen-font c-purple" style="top: 30%; left: 8%; font-size: 24px;">🎈</div>
+
+        <div class="decor pen-font c-main" style="top: 40%; right: 10%; font-size: 20px;">🎁</div>
+
+
+
+        <canvas id="particle-canvas"></canvas>
+
+        
+
+        <div class="interactive" onclick="event.stopPropagation()" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+
+            <div class="c-main fade-up d1 pen-font" id="cake-hint" style="font-size: 20px; transition: opacity 0.5s;">* 点击蜡烛，点亮你的生日惊喜 *</div>
+
+            
+
+            <div class="cake-wrapper fade-up d2">
+
+                <div class="cake-body"></div>
+
+                <div class="cake-frosting"></div>
+
+                <div class="candle-hitbox ch-1" onclick="toggleCandle(1)">
+
+                    <div class="candle-stick">
+
+                        <div class="flame-wrapper" id="fw-1"><div class="flame"></div></div>
+
+                        <div class="smoke" id="smoke-1"></div>
+
+                    </div>
+
+                </div>
+
+                <div class="candle-hitbox ch-2" onclick="toggleCandle(2)">
+
+                    <div class="candle-stick">
+
+                        <div class="flame-wrapper" id="fw-2"><div class="flame"></div></div>
+
+                        <div class="smoke" id="smoke-2"></div>
+
+                    </div>
+
+                </div>
+
+                <div class="candle-hitbox ch-3" onclick="toggleCandle(3)">
+
+                    <div class="candle-stick">
+
+                        <div class="flame-wrapper" id="fw-3"><div class="flame"></div></div>
+
+                        <div class="smoke" id="smoke-3"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="p2-surprise c-main pen-font" id="surprise-text">
+
+            生日快乐<br>愿你永远被温柔以待<br>岁岁年年皆得所愿
+
+        </div>
+
+        
+
+        <div class="c-purple pen-font" style="font-size: 16px; position: absolute; bottom: 8%;">点击页面空白处，继续翻阅</div>
+
+    </div>
+
+
+
+    <div class="page" id="page3" onclick="turnPage(1)">
+
+        <div class="decor pen-font c-pink" style="bottom: 20%; left: 8%; font-size: 24px;">❀</div>
+
+        
+
+        <div class="p3-container">
+
+            <div class="interactive-line c-main pen-font fade-up d1" onclick="clickLine(0, event)">
+
+                <span class="main-size">*今天的风 为你而来*<span class="star-mark">★</span></span>
+
+                <span class="sub-size" style="margin-top: 8px;">(Birthday Wish)</span>
+
+            </div>
+
+
+
+            <div class="interactive-line c-sub pen-font fade-up d2" onclick="clickLine(1, event)" style="flex-direction: column;">
+
+                <div style="display: flex; width: 100%; justify-content: space-between; align-items: flex-end;">
+
+                    <span class="main-size">日子清透 世事温柔<span class="star-mark">★</span></span>
+
+                    <span class="mini-size">@[你的名字]</span>
+
+                </div>
+
+                <span class="mini-size" style="margin-left: 20px; margin-top: -5px;">-Peace & Joy-</span>
+
+            </div>
+
+
+
+            <div class="interactive-line c-pink pen-font fade-up d3" onclick="clickLine(2, event)">
+
+                <span class="main-size">「你是自己的宇宙」<span class="star-mark">★</span></span>
+
+            </div>
+
+
+
+            <div class="interactive-line c-blue pen-font fade-up d4" onclick="clickLine(3, event)">
+
+                <span class="main-size wavy-underline">去奔赴辽阔与自由</span><span class="star-mark" style="margin-left:0;">★</span>
+
+                <span class="sub-size" style="margin-top: 8px;">Boundless Free</span>
+
+            </div>
+
+
+
+            <div class="interactive-line c-purple pen-font fade-up d5" onclick="clickLine(4, event)" style="flex-direction: column;">
+
+                <span class="main-size">『生辰喜乐 岁岁安澜』<span class="star-mark">★</span></span>
+
+                <div class="hand-dash"></div>
+
+                <span class="mini-size" style="margin-left: 15px; margin-top: 5px;">Always With You</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="modal-overlay interactive pen-font" id="line-modal">
+
+        <div class="modal-box">
+
+            <div class="modal-close" onclick="closeModal('line-modal')">×</div>
+
+            <div class="modal-content" id="line-modal-text"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="modal-overlay interactive pen-font" id="unlock-toast">
+
+        <div class="modal-box toast-box">✦ 彩蛋解锁！ ✦</div>
+
+    </div>
+
+
+
+    <div class="modal-overlay interactive pen-font" id="easter-modal">
+
+        <div class="modal-box easter-box">
+
+            <div class="easter-title">✦ 生日专属贺卡 ✦</div>
+
+            <div class="modal-content" style="font-size: 22px; color: #8A8FB8;">
+
+                生日快乐呀，我的朋友！<br>
+
+                谢谢你陪我走过那么多平凡又美好的日子，<br>
+
+                新的一岁，愿你永远被爱，永远自由，<br>
+
+                我会一直在你身边。
+
+            </div>
+
+            <button class="easter-btn pen-font" onclick="closeModal('easter-modal')">收下祝福</button>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        // === 1. 书页引擎 ===
+
+        let currentPage = 1;
+
+        function turnPage(targetPage) {
+
+            const currentEl = document.getElementById('page' + currentPage);
+
+            const targetEl = document.getElementById('page' + targetPage);
+
+            
+
+            currentEl.classList.remove('active');
+
+            currentEl.classList.add('exit-left');
+
+            
+
+            targetEl.classList.remove('exit-left');
+
+            void targetEl.offsetWidth; 
+
+            targetEl.classList.add('active');
+
+            
+
+            // 离开第2页时，强制暂停音乐
+
+            if(currentPage === 2 && targetPage !== 2) {
+
+                if(!bgm.paused) { bgm.pause(); updateAudioUI(false); }
+
+            }
+
+            
+
+            currentPage = targetPage;
+
+        }
+
+
+
+        // === 2. 音乐引擎 ===
+
+        const bgm = document.getElementById('bgm-audio');
+
+        let bgmMuted = true;
+
+        bgm.volume = 0.5;
+
+        bgm.muted = true; // 默认静音不扰民
+
+
+
+        function updateAudioUI(isPlaying) {
+
+            document.getElementById('audio-speaker').innerText = isPlaying ? '🔊' : '🔈';
+
+            if(isPlaying) document.getElementById('audio-note').classList.add('show');
+
+            else document.getElementById('audio-note').classList.remove('show');
+
+        }
+
+
+
+        function toggleBGM() {
+
+            if(bgm.paused) {
+
+                bgm.play().catch(e=>{});
+
+            }
+
+            bgmMuted = !bgmMuted;
+
+            bgm.muted = bgmMuted;
+
+            updateAudioUI(!bgmMuted);
+
+        }
+
+        function changeVolume() { bgm.volume = document.getElementById('audio-volume').value; }
+
+
+
+        // Web Audio合成极轻的"叮"声(点燃)与"呼"声(吹灭)
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playDing() {
+
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.02);
+
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+
+        }
+
+
+
+        function playBlow() {
+
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const bufferSize = audioCtx.sampleRate * 0.3;
+
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass';
+
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+
+            filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+
+            const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+
+            noise.start();
+
+        }
+
+
+
+        // === 3. 无Bug蜡烛与火焰引擎 ===
+
+        let candleStates = { 1: false, 2: false, 3: false };
+
+        function toggleCandle(id) {
+
+            const wrapper = document.getElementById('fw-' + id);
+
+            candleStates[id] = !candleStates[id];
+
+            
+
+            if (candleStates[id]) {
+
+                wrapper.classList.add('lit');
+
+                // 判断是否三根集齐
+
+                if(!(candleStates[1] && candleStates[2] && candleStates[3])) {
+
+                    playDing();
+
+                }
+
+            } else {
+
+                playBlow();
+
+                wrapper.classList.remove('lit');
+
+                // 触发白烟
+
+                const smoke = document.getElementById('smoke-' + id);
+
+                smoke.classList.remove('puff');
+
+                void smoke.offsetWidth; // 重置动画
+
+                smoke.classList.add('puff');
+
+            }
+
+            checkAllCandles();
+
+        }
+
+
+
+        function checkAllCandles() {
+
+            const allLit = candleStates[1] && candleStates[2] && candleStates[3];
+
+            const hint = document.getElementById('cake-hint');
+
+            const surprise = document.getElementById('surprise-text');
+
+            const canvas = document.getElementById('particle-canvas');
+
+            
+
+            if (allLit) {
+
+                hint.style.opacity = '0'; surprise.style.opacity = '1'; canvas.style.opacity = '1';
+
+                startEffect('stars');
+
+                // 自动播放生日歌（默认静音，通过UI提示点击喇叭）
+
+                bgm.play().then(() => {
+
+                    const toast = document.getElementById('audio-toast');
+
+                    toast.classList.add('show');
+
+                    setTimeout(() => toast.classList.remove('show'), 1500);
+
+                }).catch(e=>{});
+
+            } else {
+
+                hint.style.opacity = '1'; surprise.style.opacity = '0'; canvas.style.opacity = '0';
+
+                stopEffect();
+
+            }
+
+        }
+
+
+
+        // === 4. 第3页互动与闭环彩蛋引擎 ===
+
+        const lineTexts = [
+
+            "愿你往后的每一阵风，都裹着温柔与好运，只吹向你",
+
+            "愿你往后的每一天，都清透明朗，没有琐事烦扰，只有温柔相伴",
+
+            "你不用依附任何人，你本身就是完整、璀璨、独一份的宇宙，我永远欣赏你",
+
+            "愿你永远有勇气去往你想去的任何远方，看更辽阔的山海，永远活成自己想要的自由模样",
+
+            "不止今天生日快乐，往后的每一年，我都祝你平安顺遂，喜乐常伴"
+
+        ];
+
+        let linesLitState = [false, false, false, false, false];
+
+        let easterEggTriggered = false;
+
+
+
+        function clickLine(index, event) {
+
+            event.stopPropagation();
+
+            playDing();
+
+            
+
+            // 添加点亮的视觉反馈
+
+            linesLitState[index] = true;
+
+            const lines = document.querySelectorAll('.interactive-line');
+
+            lines[index].classList.add('lit');
+
+
+
+            // 弹窗
+
+            document.getElementById('line-modal-text').innerText = lineTexts[index];
+
+            document.getElementById('line-modal').classList.add('show');
+
+        }
+
+
+
+        function closeModal(modalId) {
+
+            document.getElementById(modalId).classList.remove('show');
+
+            
+
+            // 彻底闭环：关闭常规弹窗后判断触发彩蛋
+
+            if(modalId === 'line-modal') {
+
+                if(linesLitState.every(Boolean) && !easterEggTriggered) {
+
+                    easterEggTriggered = true;
+
+                    // 1. 弹出提示
+
+                    const toast = document.getElementById('unlock-toast');
+
+                    toast.classList.add('show');
+
+                    // 2. 停留1秒后消失，触发隐藏彩蛋贺卡+烟花
+
+                    setTimeout(() => {
+
+                        toast.classList.remove('show');
+
+                        setTimeout(() => {
+
+                            document.getElementById('easter-modal').classList.add('show');
+
+                            document.getElementById('particle-canvas').style.opacity = '1';
+
+                            startEffect('fireworks');
+
+                        }, 500);
+
+                    }, 1500);
+
+                }
+
+            }
+
+        }
+
+
+
+        // === 5. 粒子特效引擎 ===
+
+        const canvas = document.getElementById('particle-canvas');
+
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+
+        let animationActive = false;
+
+        let currentEffect = 'none';
+
+
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+
+
+        class Particle {
+
+            constructor(type, x, y) {
+
+                this.type = type;
+
+                this.x = x || Math.random() * canvas.width;
+
+                this.y = y || -20;
+
+                this.size = Math.random() * 2.5 + 1;
+
+                this.opacity = 1;
+
+                this.color = Math.random() > 0.5 ? '130, 182, 232' : '232, 152, 168';
+
+                if (type === 'stars') {
+
+                    this.speedY = Math.random() * 1.5 + 0.5; this.speedX = (Math.random() - 0.5) * 0.5;
+
+                } else if (type === 'fireworks') {
+
+                    const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 3 + 1;
+
+                    this.speedX = Math.cos(angle) * speed; this.speedY = Math.sin(angle) * speed; this.gravity = 0.05;
+
+                }
+
+            }
+
+            update() {
+
+                if(this.type === 'stars') {
+
+                    this.y += this.speedY; this.x += this.speedX;
+
+                    if (this.y > canvas.height) { this.y = -20; this.x = Math.random() * canvas.width; }
+
+                } else if (this.type === 'fireworks') {
+
+                    this.speedY += this.gravity; this.x += this.speedX; this.y += this.speedY;
+
+                    this.opacity -= 0.015;
+
+                }
+
+            }
+
+            draw() {
+
+                if(this.opacity <= 0) return;
+
+                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+
+            }
+
+        }
+
+
+
+        function startEffect(effectType) {
+
+            currentEffect = effectType; animationActive = true; particles = [];
+
+            if(effectType === 'stars') { for (let i = 0; i < 40; i++) particles.push(new Particle('stars')); }
+
+            animateParticles();
+
+        }
+
+        function stopEffect() { animationActive = false; currentEffect = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+
+
+        function animateParticles() {
+
+            if (!animationActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentEffect === 'fireworks' && Math.random() < 0.03) {
+
+                const bx = Math.random() * canvas.width; const by = Math.random() * canvas.height * 0.6;
+
+                for(let i=0; i<30; i++) particles.push(new Particle('fireworks', bx, by));
+
+            }
+
+            particles.forEach((p, index) => {
+
+                p.update(); p.draw();
+
+                if(p.type === 'fireworks' && p.opacity <= 0) particles.splice(index, 1);
+
+            });
+
+            requestAnimationFrame(animateParticles);
+
+        }
+
+    </script>
+
+</body>
+
+</html>

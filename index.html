@@ -503,7 +503,7 @@
 
         </div>
 
-        <div class="fade-up d5 c-purple pen-font" style="font-size: 14px; position: absolute; bottom: 8%;">202X年X月X日</div>
+      <div id="target-date" class="fade-up d5 c-purple pen-font" style="font-size: 14px; position: absolute; bottom: 8%;">202X年X月X日</div>
 
     </div>
 
@@ -1160,7 +1160,20 @@
         }
 
     </script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const newName = urlParams.get('name');
+    const newDate = urlParams.get('date');
 
+    if (newName) {
+        document.getElementById('target-name').innerText = newName;
+        document.title = "祝" + newName + "生日快乐！";
+    }
+
+    if (newDate) {
+        document.getElementById('target-date').innerText = newDate;
+    }
+</script>
 </body>
 
 </html>
